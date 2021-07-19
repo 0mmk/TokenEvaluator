@@ -1,6 +1,22 @@
 ### Java Operation Evaluator
-Example Usage
 
+Note: This program doesn't parse String, it evaluates tokens.
+Valid tokens are
+```
++
+-
+*
+/
+^
+=
++=
+-=
+*=
+/=
+^=
+```
+
+Example Usage
 ```java
 HashMap<String, Double> variables = new HashMap<>();
 variables.put("PI", Math.PI);
