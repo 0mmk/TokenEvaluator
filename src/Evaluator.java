@@ -13,7 +13,7 @@ public class Evaluator {
         return makeOperation(objectList, variables);
     }
 
-    public static boolean isNumeric(String str) {
+    private static boolean isNumeric(String str) {
         try {
             Double.parseDouble(str);
             return true;
@@ -22,7 +22,7 @@ public class Evaluator {
         }
     }
 
-    public static Double setOperation(TokenList objectList, HashMap<String, Double> variables, boolean isLeft) throws Exception {
+    private static Double setOperation(TokenList objectList, HashMap<String, Double> variables, boolean isLeft) throws Exception {
         Double varPosition;
         Object token = isLeft ? objectList.getTokenLeft() : objectList.getTokenRight();
         String operator = objectList.getOperation();
@@ -42,7 +42,7 @@ public class Evaluator {
         return varPosition;
     }
 
-    public static Object makeOperation(TokenList objectList, HashMap<String, Double> variables) throws Exception {
+    private static Object makeOperation(TokenList objectList, HashMap<String, Double> variables) throws Exception {
         String operator = objectList.getOperation();
         Double varLeft = setOperation(objectList, variables, true);
         Double varRight = setOperation(objectList, variables, false);
