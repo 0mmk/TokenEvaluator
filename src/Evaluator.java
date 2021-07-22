@@ -13,7 +13,7 @@ public class Evaluator {
         return makeOperation(objectList, variables);
     }
 
-    private static boolean isNumeric(String str) {
+    private static boolean isDouble(String str) {
         try {
             Double.parseDouble(str);
             return true;
@@ -22,23 +22,31 @@ public class Evaluator {
         }
     }
 
-    private static Double setOperation(TokenList objectList, HashMap<String, Double> variables, boolean isLeft) throws Exception {
-        Double varPosition;
+    private static Double setOperation(TokenList objectList, HashMap<String, Double> variables, boolean isLeft) {
         Object token = isLeft ? objectList.getTokenLeft() : objectList.getTokenRight();
-        String operator = objectList.getOperation();
-        if (token.getClass() == Double.class) {
+        return setOperationTypeWithToken(token, objectList.getOperation(), variables);
+    }
+
+    private static Double setOperationTypeWithToken(Object token, String operator, HashMap<String, Double> variables) {
+        Double varPosition;
+        if (Double.class.equals(token.getClass())) {
             varPosition = (Double) token;
-        } else {
-            String varLeftStr = (String) token;
-            if (!isNumeric(varLeftStr)) {
-                varPosition = variables.get(varLeftStr);
+        } else if (String.class.equals(token.getClass())) {
+            String varPositionStr = (String) token;
+            if (!isDouble(varPositionStr)) {
+                varPosition = variables.get(varPositionStr);
                 if (!operator.equals("=") && varPosition == null) {
-                    throw new Exception(String.format("Variable: `%s` doesn't exist!", varLeftStr));
+                    throw new IllegalStateException(String.format("Variable `%s` doesn't exist", varPositionStr));
                 }
             } else {
-                varPosition = Double.parseDouble(varLeftStr);
+                varPosition = Double.parseDouble(varPositionStr);
             }
+        } else if (Integer.class.equals(token.getClass())) {
+            return setOperationTypeWithToken(((Integer) token).doubleValue(), operator, variables);
+        } else {
+            throw new IllegalStateException("Unexpected token class: " + token.getClass());
         }
+
         return varPosition;
     }
 
@@ -46,55 +54,27 @@ public class Evaluator {
         String operator = objectList.getOperation();
         Double varLeft = setOperation(objectList, variables, true);
         Double varRight = setOperation(objectList, variables, false);
-
         if (operator.charAt(operator.length() - 1) != '=') {
             switch (operator) {
-                case "+":
-                    varLeft += varRight;
-                    break;
-                case "-":
-                    varLeft -= varRight;
-                    break;
-                case "*":
-                    varLeft *= varRight;
-                    break;
-                case "/":
-                    varLeft /= varRight;
-                    break;
-                case "^":
-                    varLeft = Math.pow(varLeft, varRight);
-                    break;
+                case "+" -> varLeft += varRight;
+                case "-" -> varLeft -= varRight;
+                case "*" -> varLeft *= varRight;
+                case "/" -> varLeft /= varRight;
+                case "^" -> varLeft = Math.pow(varLeft, varRight);
+                default -> throw new IllegalStateException("Unexpected operation " + operator);
             }
         } else {
             String varLeftStr = (String) objectList.getTokenLeft();
             switch (operator) {
-                case "=":
-                    variables.put(varLeftStr, varRight);
-                    varLeft = variables.get(varLeftStr);
-                    break;
-                case "+=":
-                    variables.put(varLeftStr, varLeft + varRight);
-                    varLeft = variables.get(varLeftStr);
-                    break;
-                case "-=":
-                    variables.put(varLeftStr, varLeft - varRight);
-                    varLeft = variables.get(varLeftStr);
-                    break;
-                case "*=":
-                    variables.put(varLeftStr, varLeft * varRight);
-                    varLeft = variables.get(varLeftStr);
-                    break;
-                case "/=":
-                    variables.put(varLeftStr, varLeft / varRight);
-                    varLeft = variables.get(varLeftStr);
-                    break;
-                case "^=":
-                    variables.put(varLeftStr, Math.pow(varLeft, varRight));
-                    varLeft = variables.get(varLeftStr);
-                    break;
+                case "=" -> varLeft = variables.put(varLeftStr, varRight);
+                case "+=" -> varLeft = variables.put(varLeftStr, varLeft + varRight);
+                case "-=" -> varLeft = variables.put(varLeftStr, varLeft - varRight);
+                case "*=" -> varLeft = variables.put(varLeftStr, varLeft * varRight);
+                case "/=" -> varLeft = variables.put(varLeftStr, varLeft / varRight);
+                case "^=" -> varLeft = variables.put(varLeftStr, Math.pow(varLeft, varRight));
+                default -> throw new IllegalStateException("Unexpected operation " + operator);
             }
         }
-
         return varLeft;
     }
 }

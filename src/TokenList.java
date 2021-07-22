@@ -1,5 +1,3 @@
-import java.util.HashMap;
-
 public class TokenList {
     private String operation;
     private Object tokenLeft, tokenRight;
