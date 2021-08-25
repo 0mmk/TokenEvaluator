@@ -1,6 +1,5 @@
 ### Java Operation Evaluator
 
-Note: This program doesn't parse String, it evaluates tokens with operators.
 Valid operators are
 ```
 + - * / ^
